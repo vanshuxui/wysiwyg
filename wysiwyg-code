@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced WYSIWYG Editor with Table Feature</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .toolbar button {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .toolbar button:hover {
+            background-color: #f0f0f0;
+        }
+        .editor, .source-editor {
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-height: 200px;
+            overflow: auto;
+            margin-top: 10px;
+        }
+        .source-editor {
+            display: none;
+            font-family: monospace;
+        }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body>
+
+<div x-data="wysiwygEditor()" class="editor-container">
+    <div class="toolbar">
+        <button @click="execCmd('bold')"><b>B</b></button>
+        <button @click="execCmd('italic')"><i>I</i></button>
+        <button @click="execCmd('underline')"><u>U</u></button>
+        <button @click="execCmd('strikeThrough')"><s>S</s></button>
+        <button @click="execCmd('justifyLeft')">Left</button>
+        <button @click="execCmd('justifyCenter')">Center</button>
+        <button @click="execCmd('justifyRight')">Right</button>
+        <button @click="execCmd('justifyFull')">Justify</button>
+        <button @click="execCmd('insertUnorderedList')">&bull; List</button>
+        <button @click="execCmd('insertOrderedList')">1. List</button>
+        <button @click="execCmd('createLink', prompt('Enter the URL:', 'http://'))">Link</button>
+        <button @click="execCmd('unlink')">Unlink</button>
+        <button @click="execCmd('insertImage', prompt('Enter the image URL:', 'http://'))">Image</button>
+        <button @click="execCmd('foreColor', prompt('Enter the color:', '#000000'))">Text Color</button>
+        <button @click="execCmd('backColor', prompt('Enter the background color:', '#ffffff'))">Background Color</button>
+        <button @click="execCmd('fontName', prompt('Enter the font name:', 'Arial'))">Font</button>
+        <button @click="execCmd('fontSize', prompt('Enter the font size (1-7):', '3'))">Font Size</button>
+        <button @click="toggleSourceCode()">Source</button>
+        <button @click="insertTable()">Table</button>
+    </div>
+    <div x-ref="editor" contenteditable="true" class="editor"></div>
+    <textarea x-ref="sourceEditor" class="source-editor"></textarea>
+</div>
+
+<script>
+    function wysiwygEditor() {
+        return {
+            isSourceCode: false,
+            toggleSourceCode() {
+                this.isSourceCode = !this.isSourceCode;
+                if (this.isSourceCode) {
+                    this.$refs.sourceEditor.value = this.$refs.editor.innerHTML;
+                    this.$refs.editor.style.display = 'none';
+                    this.$refs.sourceEditor.style.display = 'block';
+                } else {
+                    this.$refs.editor.innerHTML = this.$refs.sourceEditor.value;
+                    this.$refs.editor.style.display = 'block';
+                    this.$refs.sourceEditor.style.display = 'none';
+                }
+            },
+            execCmd(command, value = null) {
+                document.execCommand(command, false, value);
+            },
+            insertTable() {
+                const rows = prompt('Number of rows:', '2');
+                const cols = prompt('Number of columns:', '2');
+                if (rows > 0 && cols > 0) {
+                    let table = '<table border="1">';
+                    for (let i = 0; i < rows; i++) {
+                        table += '<tr>';
+                        for (let j = 0; j < cols; j++) {
+                            table += '<td>&nbsp;</td>';
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</table>';
+                    this.execCmd('insertHTML', table);
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
